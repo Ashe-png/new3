@@ -30,3 +30,6 @@ logs/fit/now_playing/train/events.out.tfevents.1671950335.256bc7605dd7.7152.0.v2
 logs/fit/now_playing/train/events.out.tfevents.1671976070.DESKTOP-TV2AP6A.17376.0.v2
 logs/fit/now_playing/val/events.out.tfevents.1671950335.256bc7605dd7.7152.1.v2
 logs/fit/now_playing/val/events.out.tfevents.1671976070.DESKTOP-TV2AP6A.17376.1.v2
+logs/emb/640_lamb/101/test.py
+.gitignore
+logs/checkpoint/640_lamb.yaml

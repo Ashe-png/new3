@@ -125,7 +125,7 @@ class Dataset:
     def get_train_ds(self, reduce_items_p=0):
         # Source (music) file paths for train set
         if self.datasel_train == '10k_icassp':
-            _prefix = 'train-10k-30s/'
+            _prefix = 'wav/'
         else:
             raise NotImplementedError(self.datasel_train)
         self.tr_source_fps = sorted(
@@ -149,14 +149,14 @@ class Dataset:
         return ds
 
 
-    def get_val_ds(self, max_song=500):
+    def get_val_ds(self, max_song=15):
         # Source (music) file paths for validation set.
         """
         max_song: (int) <= 500.
 
         """
         self.val_source_fps = sorted(
-            glob.glob(self.source_root_dir + 'val-query-db-500-30s/' +
+            glob.glob(self.source_root_dir + 'val/' +
                       '**/*.wav', recursive=True))[:max_song]
 
         ds = genUnbalSequence(
