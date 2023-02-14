@@ -66,3 +66,10 @@ model/utils/__pycache__/__init__.cpython-310.pyc
 model/utils/__pycache__/audio_utils.cpython-310.pyc
 model/utils/__pycache__/dataloader_keras.cpython-310.pyc
 eval/__pycache__/__init__.cpython-310.pyc
+temp/
+eval/__pycache__/ 
+eval/utils/__pycache__/
+model/__pycache__/
+model/fp/__pycache__/
+model/fp/melspec/__pycache__/
+
