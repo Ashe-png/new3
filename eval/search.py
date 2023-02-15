@@ -66,12 +66,12 @@ def get_data_source(cfg):
     dataset = Dataset(cfg)
     ds = dict()
 
-    # app = QApplication(sys.argv)
+    app = QApplication(sys.argv)
 
-    # file_path, _ = QFileDialog.getOpenFileName()
-    source_root_dir = './temp'
-    # source_root_dir = os.path.relpath(file_path, os.getcwd())
-    ds['custom_source'] = dataset.get_custom_db_ds(source_root_dir)
+    file_path, _ = QFileDialog.getOpenFileName()
+    # source_root_dir = './temp'
+    source_root_dir = os.path.relpath(file_path, os.getcwd())
+    ds['custom_source'] = dataset.get_custom_db_ds2(source_root_dir)
     return ds
 
 @tf.function
