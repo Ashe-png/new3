@@ -317,3 +317,20 @@ class Dataset:
             random_offset_anchor=False,
             drop_the_last_non_full_batch=False) # No augmentations, No drop-samples.
         return ds
+    
+    def get_custom_db_ds2(self, source_root_dir):
+        """ Construc DB (or query) from custom source files. """
+        fps = sorted(
+            glob.glob(source_root_dir , recursive=True))
+        _ts_n_anchor = self.ts_batch_sz # Only anchors...
+        ds = genUnbalSequence(
+            fps,
+            self.ts_batch_sz,
+            _ts_n_anchor,
+            self.dur,
+            self.hop,
+            self.fs,
+            shuffle=False,
+            random_offset_anchor=False,
+            drop_the_last_non_full_batch=False) # No augmentations, No drop-samples.
+        return ds

@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 import time
 import yaml
-import pandas as pd
+import json
 from tensorflow.keras.utils import Progbar
 from model.dataset import Dataset
 from model.fp.melspec.melspectrogram_tflite import get_melspec_layer
@@ -83,7 +83,7 @@ def test_step(X, m_pre, m_fp):
 def generate_fingerprint(cfg):
     # Build and load checkpoint
     checkpoint_name = '640_lamb'
-    checkpoint_index = 101
+    checkpoint_index = 11
     m_pre, m_fp = build_fp(cfg)
     checkpoint_root_dir = cfg['DIR']['LOG_ROOT_DIR'] + 'checkpoint/'
     checkpoint_index = load_checkpoint(checkpoint_root_dir, checkpoint_name,
@@ -177,12 +177,16 @@ def load_memmap_data(source_dir,
         print(f'Load {data_shape[0]:,} items from \033[32m{path_data}\033[0m.')
     return data, data_shape
 
-def search(   index_type='ivfpq',
+def search(   db,
+               db_shape,
+               index,
+               index_type='ivfpq',
                nogpu=True,
                max_train=1e7,
                test_ids='icassp',
                test_seq_len='1 3 5 9 11 19',
                k_probe=20,
+               
                display_interval=5):
     """
     Segment/sequence-wise audio search experiment and evaluation: implementation based on FAISS.
@@ -194,9 +198,9 @@ def search(   index_type='ivfpq',
 
     # Load items from {query, db, dummy_db}
     # query, query_shape = load_memmap_data(emb_dir, 'query')
-    emb_dir = './logs/emb/640_lamb/101/'
+    emb_dir = './logs/emb/640_lamb/11/'
 
-    db, db_shape = load_memmap_data(emb_dir, 'custom_source')
+    # db, db_shape = load_memmap_data(emb_dir, 'custom_source')
     config = '640_lamb'
     emb_dummy_dir = emb_dir
     
@@ -214,19 +218,19 @@ def search(   index_type='ivfpq',
                                        [q0,  q1,  q2,  q3,  q4]
     • The set of ground truth IDs for q[i] will be (i + len(dummy_db))
     ---------------------------------------------------------------------- """
-    # Create and train FAISS index
-    index = get_index(index_type, db, db.shape, (not nogpu),
-                      max_train, trained=True)
+    # # Create and train FAISS index
+    # index = get_index(index_type, db, db.shape, (not nogpu),
+    #                   max_train, trained=True)
     
 
-    # Add items to index
-    start_time = time.time()
+    # # Add items to index
+    # start_time = time.time()
 
-    # index.add(dummy_db); print(f'{len(dummy_db)} items from dummy DB')
-    index.add(db); print(f'{len(db)} items from reference DB')
+    # # index.add(dummy_db); print(f'{len(dummy_db)} items from dummy DB')
+    # index.add(db); print(f'{len(db)} items from reference DB')
 
-    t = time.time() - start_time
-    print(f'Added total {index.ntotal} items to DB. {t:>4.2f} sec.')
+    # t = time.time() - start_time
+    # print(f'Added total {index.ntotal} items to DB. {t:>4.2f} sec.')
 
     """ ----------------------------------------------------------------------
     We need to prepare a merged {dummy_db + db} memmap:
@@ -299,11 +303,15 @@ def search(   index_type='ivfpq',
 
 def result(pred_id):
 
-    df = pd.read_json('./eval/metadata.json')
+    with open('./eval/metadata.json', 'r') as f:
+        data = json.load(f)
+    column_data = [row['indices'] for row in data]
 
-    indexes = df.iloc[:,1].values
-    closest = df.iloc[(df['index']-pred_id).abs().argsort()[:2]]
+    filtered_list = [x for x in column_data if x <= pred_id]
+    closest = min(filtered_list, key=lambda x: abs(x - pred_id))
 
-    song = closest[closest['index']<=pred_id]
-    song = song.to_json
-    return song
+    for song in data:
+        if song['indices'] == closest:
+            print (song)
+            return song
+    
