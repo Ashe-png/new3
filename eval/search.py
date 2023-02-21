@@ -254,13 +254,13 @@ def eval_faiss( checkpoint_name, checkpoint_index, output,db, db_shape, index,
     ---------------------------------------------------------------------- """
     # Prepare fake_recon_index
     # del dummy_db
-    # start_time = time.time()
+    start_time = time.time()
 
-    # fake_recon_index, index_shape = load_memmap_data(
-    #     emb_dummy_dir, 'custom_source',
-    #     display=False)
-    # # fake_recon_index[dummy_db_shape[0]:dummy_db_shape[0] + query_shape[0], :] = db[:, :]
-    # # fake_recon_index.flush()
+    fake_recon_index, index_shape = load_memmap_data(
+        emb_dummy_dir, 'custom_source',
+        display=False)
+    # fake_recon_index[dummy_db_shape[0]:dummy_db_shape[0] + query_shape[0], :] = db[:, :]
+    # fake_recon_index.flush()
 
     # t = time.time() - start_time
     # print(f'Created fake_recon_index, total {index_shape[0]} items. {t:>4.2f} sec.')
