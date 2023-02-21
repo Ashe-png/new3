@@ -1,13 +1,18 @@
 import pandas as pd
+import json
 
 def result(pred_id):
 
-    df = pd.read_json('./eval/metadata.json')
+    with open('./eval/metadata.json', 'r') as f:
+        data = json.load(f)
+    column_data = [row['indices'] for row in data]
 
-    indexes = df.iloc[:,1].values
-    closest = df.iloc[(df['index']-pred_id).abs().argsort()[:2]]
+    filtered_list = [x for x in column_data if x <= pred_id]
+    closest = min(filtered_list, key=lambda x: abs(x - pred_id))
 
-    song = closest[closest['index']<=pred_id].values
-    print(f'The song name is {song[0][0]}')
+    for song in data:
+        if song['indices'] == closest:
+            print (song)
+            return song
 
 

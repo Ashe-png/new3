@@ -66,12 +66,12 @@ def get_data_source(cfg):
     dataset = Dataset(cfg)
     ds = dict()
 
-    app = QApplication(sys.argv)
+    # app = QApplication(sys.argv)
 
-    file_path, _ = QFileDialog.getOpenFileName()
-    # source_root_dir = './temp'
-    source_root_dir = os.path.relpath(file_path, os.getcwd())
-    ds['custom_source'] = dataset.get_custom_db_ds2(source_root_dir)
+    # file_path, _ = QFileDialog.getOpenFileName()
+    source_root_dir = './temp'
+    # source_root_dir = os.path.relpath(file_path, os.getcwd())
+    ds['custom_source'] = dataset.get_custom_db_ds(source_root_dir)
     return ds
 
 @tf.function
@@ -189,10 +189,11 @@ def load_memmap_data(source_dir,
         print(f'Load {data_shape[0]:,} items from \033[32m{path_data}\033[0m.')
     return data, data_shape
 
-def eval_faiss( checkpoint_name, checkpoint_index, output,
+def eval_faiss( checkpoint_name, checkpoint_index, output,db, db_shape, index,
                emb_dir,
                index_type='ivfpq',
                nogpu=True,
+               
                max_train=1e7,
                test_ids='icassp',
                test_seq_len='1 3 5 9 11 19',
@@ -208,8 +209,8 @@ def eval_faiss( checkpoint_name, checkpoint_index, output,
 
     # Load items from {query, db, dummy_db}
     # query, query_shape = load_memmap_data(emb_dir, 'query')
-    # emb_dir = './logs/emb/640_lamb/101/'
-    db, db_shape = load_memmap_data(emb_dir, 'custom_source')
+    emb_dir = './logs/emb/640_lamb/11/'
+    # db, db_shape = load_memmap_data(emb_dir, 'custom_source')
     config = '640_lamb'
     emb_dummy_dir = emb_dir
     
@@ -228,18 +229,18 @@ def eval_faiss( checkpoint_name, checkpoint_index, output,
     • The set of ground truth IDs for q[i] will be (i + len(dummy_db))
     ---------------------------------------------------------------------- """
     # Create and train FAISS index
-    index = get_index(index_type, db, db.shape, (not nogpu),
-                      max_train, trained=True)
+    # index = get_index(index_type, db, db.shape, (not nogpu),
+    #                   max_train, trained=True)
     
 
-    # Add items to index
-    start_time = time.time()
+    # # Add items to index
+    # start_time = time.time()
 
-    # index.add(dummy_db); print(f'{len(dummy_db)} items from dummy DB')
-    index.add(db); print(f'{len(db)} items from reference DB')
+    # # index.add(dummy_db); print(f'{len(dummy_db)} items from dummy DB')
+    # index.add(db); print(f'{len(db)} items from reference DB')
 
-    t = time.time() - start_time
-    print(f'Added total {index.ntotal} items to DB. {t:>4.2f} sec.')
+    # t = time.time() - start_time
+    # print(f'Added total {index.ntotal} items to DB. {t:>4.2f} sec.')
 
     """ ----------------------------------------------------------------------
     We need to prepare a merged {dummy_db + db} memmap:
@@ -251,16 +252,16 @@ def eval_faiss( checkpoint_name, checkpoint_index, output,
     ---------------------------------------------------------------------- """
     # Prepare fake_recon_index
     # del dummy_db
-    start_time = time.time()
+    # start_time = time.time()
 
-    fake_recon_index, index_shape = load_memmap_data(
-        emb_dummy_dir, 'custom_source',
-        display=False)
-    # fake_recon_index[dummy_db_shape[0]:dummy_db_shape[0] + query_shape[0], :] = db[:, :]
-    # fake_recon_index.flush()
+    # fake_recon_index, index_shape = load_memmap_data(
+    #     emb_dummy_dir, 'custom_source',
+    #     display=False)
+    # # fake_recon_index[dummy_db_shape[0]:dummy_db_shape[0] + query_shape[0], :] = db[:, :]
+    # # fake_recon_index.flush()
 
-    t = time.time() - start_time
-    print(f'Created fake_recon_index, total {index_shape[0]} items. {t:>4.2f} sec.')
+    # t = time.time() - start_time
+    # print(f'Created fake_recon_index, total {index_shape[0]} items. {t:>4.2f} sec.')
 
     # # Get test_ids
     # print(f'test_id: \033[93m{test_ids}\033[0m,  ', end='')
@@ -279,7 +280,6 @@ def eval_faiss( checkpoint_name, checkpoint_index, output,
     # print(f'n_test: \033[93m{n_test:n}\033[0m')
 
     """ Segement/sequence-level search & evaluation """
-    start_time = time.time()
     cfg = load_config(config)
     query, query_shape = generate_fingerprint(cfg, checkpoint_name, checkpoint_index, output)
     q = query[:, :] # shape(q) = (length, dim)

@@ -4,6 +4,7 @@ from ml import search, result, load_memmap_data,get_index
 import subprocess
 from fastapi.responses import Response
 import time
+from run import search2
 
 app = FastAPI()
 
@@ -44,8 +45,8 @@ def create_songs(song: Song):
 
 @app.get("/search/")
 def search_song(prompt:str):
-    pred_id = search(db,db_shape,index)
-    song = result(pred_id)
+    song = search2('640_lamb', '11', 'default' ,'ivfpq', None, False, db, db_shape,index)
+    # song = result(pred_id)
     return song
 
 @app.post("/upload-audio")

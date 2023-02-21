@@ -22,6 +22,19 @@ def update_config(cfg, key1: str, key2: str, val):
     cfg[key1][key2] = val
     return cfg
 
+def search2(checkpoint_name, checkpoint_index, config, index_type, output, nogpu, db,  db_shape, index):
+    from eval.search import eval_faiss
+    from eval.result import result
+    from model.utils.config_gpu_memory_lim import allow_gpu_memory_growth
+    
+    cfg = load_config(config)
+    allow_gpu_memory_growth()
+    emb_dir = cfg['DIR']['OUTPUT_ROOT_DIR'] + checkpoint_name + '/' + \
+        str(checkpoint_index) + '/'
+
+    pred_id = eval_faiss(checkpoint_name, checkpoint_index, output, db, db_shape, index, emb_dir, index_type)
+    song = result(pred_id)
+    return song
 
 def print_config(cfg):
     os.system("")
@@ -175,7 +188,6 @@ def evaluate(checkpoint_name, checkpoint_index, config, index_type,
 @click.option('--nogpu', default=False, is_flag=True,
               help='Use this flag to use CPU only.')
 def search(checkpoint_name, checkpoint_index, config, index_type, output, nogpu):
-    
     from eval.search import eval_faiss
     from eval.result import result
     from model.utils.config_gpu_memory_lim import allow_gpu_memory_growth
@@ -184,9 +196,15 @@ def search(checkpoint_name, checkpoint_index, config, index_type, output, nogpu)
     allow_gpu_memory_growth()
     emb_dir = cfg['DIR']['OUTPUT_ROOT_DIR'] + checkpoint_name + '/' + \
         str(checkpoint_index) + '/'
+    db = None
+    db_shape = None
+    index = None
+    pred_id = eval_faiss(checkpoint_name, checkpoint_index,output,db, db_shape, index, emb_dir, index_type)
+    song = result(pred_id)
+    return song
 
-    pred_id = eval_faiss(checkpoint_name, checkpoint_index, output, emb_dir, index_type)
-    result(pred_id)
+
+
 
 if __name__ == '__main__':
     cli()
