@@ -80,6 +80,7 @@ def test_step(X, m_pre, m_fp):
     m_fp.trainable = False
     return m_fp(m_pre(X))  # (BSZ, Dim)
 
+
 def generate_fingerprint(cfg):
     # Build and load checkpoint
     checkpoint_name = '640_lamb'

@@ -65,6 +65,7 @@ def convertToWav():
     # get filename from previous function
     input_file = filename
     output_file = "output.wav"
+    
 
     command = ["ffmpeg", "-i", input_file, "-ar", "18000", "-ac", "1", "-f", "wav", output_file]
     subprocess.run(command)

@@ -198,6 +198,7 @@ def search(checkpoint_name, checkpoint_index, config, index_type, output, nogpu)
         str(checkpoint_index) + '/'
     db = None
     db_shape = None
+    
     index = None
     pred_id = eval_faiss(checkpoint_name, checkpoint_index,output,db, db_shape, index, emb_dir, index_type)
     song = result(pred_id)
