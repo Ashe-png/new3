@@ -254,6 +254,7 @@ def eval_faiss( checkpoint_name, checkpoint_index, output,db, db_shape, index,
     ---------------------------------------------------------------------- """
     # Prepare fake_recon_index
     # del dummy_db
+    
     start_time = time.time()
 
     fake_recon_index, index_shape = load_memmap_data(
