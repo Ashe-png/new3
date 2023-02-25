@@ -4,6 +4,9 @@ from ml import search, result, load_memmap_data,get_index
 import subprocess
 from fastapi.responses import Response
 import time
+import re
+from pydub import AudioSegment
+import ast
 from run import search2
 
 app = FastAPI()
@@ -45,18 +48,54 @@ def create_songs(song: Song):
 
 @app.get("/search/")
 def search_song(prompt:str):
-    song = search2('640_lamb', '11', 'default' ,'ivfpq', None, False, db, db_shape,index)
-    # song = result(pred_id)
-    return song
+    # song = search2('640_lamb', '11', 'default' ,'ivfpq', None, False, db, db_shape,index)
+    # # song = result(pred_id)
+    # return song
+    result = subprocess.run(['python', 'run.py','search', '640_lamb', '11'], stdout=subprocess.PIPE)
+    output = result.stdout.decode('utf-8')
+    pattern = r'\{.*?\}'
+
+    # Find all matches of the pattern in the output
+    match = re.findall(pattern, output)
+
+    dict_string = match[0].strip("'")
+
+    # Parse the dictionary string using the ast module
+    parsed_dict = ast.literal_eval(dict_string)
+
+
+
+    # Print the JSON object
+    return parsed_dict
 
 @app.post("/upload-audio")
 async def create_upload_file(file: UploadFile = File(...)):
 
     contents = await file.read()
-    with open(file.filename, "wb") as f:
+    with open(f'.\temp\{file.filename}', "wb") as f:
         f.write(contents)
+    
+    audio = AudioSegment.from_file("input_file.m4a", format="m4a")
+
+    # Save the audio file as WAV
+    audio.export("output_file.wav", format="wav")
   
-    return {"filename": file.filename}
+    result = subprocess.run(['python', 'run.py','search', '640_lamb', '11'], stdout=subprocess.PIPE)
+    output = result.stdout.decode('utf-8')
+    pattern = r'\{.*?\}'
+
+    # Find all matches of the pattern in the output
+    match = re.findall(pattern, output)
+
+    dict_string = match[0].strip("'")
+
+    # Parse the dictionary string using the ast module
+    parsed_dict = ast.literal_eval(dict_string)
+
+
+
+    # Print the JSON object
+    return parsed_dict
 
 
 # yo chai, maathi ko api mai integrate garna garho bhayo , so chuttei chuttei garna parcha.
