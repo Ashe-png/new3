@@ -72,13 +72,15 @@ def search_song(prompt:str):
 async def create_upload_file(file: UploadFile = File(...)):
 
     contents = await file.read()
-    with open(f'.\temp\{file.filename}', "wb") as f:
+    with open(f'temp\{file.filename}', "wb") as f:
         f.write(contents)
     
-    audio = AudioSegment.from_file("input_file.m4a", format="m4a")
+    command = ["ffmpeg", "-i", f'temp\{file.filename}', "-ar", "8000", "-ac", "1", "-f", "wav", f'temp\output.wav']
+    subprocess.run(command)
+    # audio = AudioSegment.from_file(f'temp\Antibiotic.m4a', format="m4a")
 
-    # Save the audio file as WAV
-    audio.export("output_file.wav", format="wav")
+    # # Save the audio file as WAV
+    # audio.export("temp\output_file.wav", format="wav")
   
     result = subprocess.run(['python', 'run.py','search', '640_lamb', '11'], stdout=subprocess.PIPE)
     output = result.stdout.decode('utf-8')
