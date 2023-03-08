@@ -66,12 +66,12 @@ def get_data_source(cfg):
     dataset = Dataset(cfg)
     ds = dict()
 
-    # app = QApplication(sys.argv)
+    app = QApplication(sys.argv)
 
-    # file_path, _ = QFileDialog.getOpenFileName()
-    source_root_dir = './temp'
-    # source_root_dir = os.path.relpath(file_path, os.getcwd())
-    ds['custom_source'] = dataset.get_custom_db_ds(source_root_dir)
+    file_path, _ = QFileDialog.getOpenFileName()
+    # source_root_dir = './temp'
+    source_root_dir = os.path.relpath(file_path, os.getcwd())
+    ds['custom_source'] = dataset.get_custom_db_ds2(source_root_dir)
     return ds
 
 @tf.function
@@ -210,7 +210,7 @@ def eval_faiss( checkpoint_name, checkpoint_index, output,db, db_shape, index,
     # Load items from {query, db, dummy_db}
     # query, query_shape = load_memmap_data(emb_dir, 'query')
     emb_dir = './logs/emb/640_lamb/11/'
-    # db, db_shape = load_memmap_data(emb_dir, 'custom_source')
+    db, db_shape = load_memmap_data(emb_dir, 'custom_source')
     config = '640_lamb'
     
     
@@ -231,18 +231,18 @@ def eval_faiss( checkpoint_name, checkpoint_index, output,db, db_shape, index,
     • The set of ground truth IDs for q[i] will be (i + len(dummy_db))
     ---------------------------------------------------------------------- """
     # Create and train FAISS index
-    # index = get_index(index_type, db, db.shape, (not nogpu),
-    #                   max_train, trained=True)
+    index = get_index(index_type, db, db.shape, (not nogpu),
+                      max_train, trained=True)
     
 
-    # # Add items to index
-    # start_time = time.time()
+    # Add items to index
+    start_time = time.time()
 
-    # # index.add(dummy_db); print(f'{len(dummy_db)} items from dummy DB')
-    # index.add(db); print(f'{len(db)} items from reference DB')
+    # index.add(dummy_db); print(f'{len(dummy_db)} items from dummy DB')
+    index.add(db); print(f'{len(db)} items from reference DB')
 
-    # t = time.time() - start_time
-    # print(f'Added total {index.ntotal} items to DB. {t:>4.2f} sec.')
+    t = time.time() - start_time
+    print(f'Added total {index.ntotal} items to DB. {t:>4.2f} sec.')
 
     """ ----------------------------------------------------------------------
     We need to prepare a merged {dummy_db + db} memmap:
