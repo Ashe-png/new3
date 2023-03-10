@@ -53,7 +53,8 @@ async def create_upload_file(file: UploadFile = File(...)):
     contents = await file.read()
     with open(f'temp\{file.filename}', "wb") as f:
         f.write(contents)
-    
+    if os.path.isfile(f'temp\output.wav'):
+        os.remove('temp\output.wav')
     command = ["ffmpeg", "-i", f'temp\{file.filename}', "-ar", "8000", "-ac", "1", "-f", "wav", f'temp\output.wav']
     subprocess.run(command)
     # audio = AudioSegment.from_file(f'temp\Antibiotic.m4a', format="m4a")
@@ -61,7 +62,7 @@ async def create_upload_file(file: UploadFile = File(...)):
     # # Save the audio file as WAV
     # audio.export("temp\output_file.wav", format="wav")
   
-    result = subprocess.run(['python', 'run.py','search', '640_lamb', '11'], stdout=subprocess.PIPE)
+    result = subprocess.run(['python', 'run.py','search', '640_lamb', '15'], stdout=subprocess.PIPE)
     output = result.stdout.decode('utf-8')
     pattern = r'\{.*?\}'
 
@@ -73,7 +74,7 @@ async def create_upload_file(file: UploadFile = File(...)):
     # Parse the dictionary string using the ast module
     parsed_dict = ast.literal_eval(dict_string)
 
-    os.remove('temp\output.wav')
+    
 
     # Print the JSON object
     return parsed_dict
