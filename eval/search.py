@@ -210,7 +210,7 @@ def eval_faiss( checkpoint_name, checkpoint_index, output,db, db_shape, index,
 
     # Load items from {query, db, dummy_db}
     # query, query_shape = load_memmap_data(emb_dir, 'query')
-    emb_dir = './logs/emb/640_lamb/11/'
+    emb_dir = './logs/emb/640_lamb/15/'
     db, db_shape = load_memmap_data(emb_dir, 'custom_source')
     config = '640_lamb'
     trained = True
