@@ -109,14 +109,16 @@ def get_index(index_type,
             sel_tr_idx = np.random.permutation(len(train_data))
             sel_tr_idx = sel_tr_idx[:max_nitem_train]
             index.train(train_data[sel_tr_idx,:])
+            index.nprobe = 40
         else:
             print('Training index...')
             index.train(train_data) # Actually do nothing for {'l2', 'hnsw'}
+            index.nprobe = 40
         print('Elapsed time: {:.2f} seconds.'.format(time.time() - start_time))
     else:
         index = faiss.read_index(".\eval\index.faiss")
         print('Loaded the trained index')
         # N probe
-        index.nprobe = 40
+        # index.nprobe = 40
     # faiss.write_index(index, 'index.faiss')
     return index

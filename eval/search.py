@@ -5,6 +5,7 @@ import tensorflow as tf
 import time
 import yaml
 import math
+import faiss
 from PyQt5.QtWidgets import QApplication, QFileDialog
 from tensorflow.keras.utils import Progbar
 from model.dataset import Dataset
@@ -212,7 +213,7 @@ def eval_faiss( checkpoint_name, checkpoint_index, output,db, db_shape, index,
     emb_dir = './logs/emb/640_lamb/11/'
     db, db_shape = load_memmap_data(emb_dir, 'custom_source')
     config = '640_lamb'
-    
+    trained = True
     
     emb_dummy_dir = emb_dir
     
@@ -231,18 +232,24 @@ def eval_faiss( checkpoint_name, checkpoint_index, output,db, db_shape, index,
     • The set of ground truth IDs for q[i] will be (i + len(dummy_db))
     ---------------------------------------------------------------------- """
     # Create and train FAISS index
-    index = get_index(index_type, db, db.shape, (not nogpu),
-                      max_train, trained=True)
-    
+    if trained == False:
+      index = get_index(index_type, db, db.shape, (not nogpu),
+                        max_train, trained=False)
+      
 
-    # Add items to index
-    start_time = time.time()
+      # Add items to index
+      start_time = time.time()
 
-    # index.add(dummy_db); print(f'{len(dummy_db)} items from dummy DB')
-    index.add(db); print(f'{len(db)} items from reference DB')
-
-    t = time.time() - start_time
-    print(f'Added total {index.ntotal} items to DB. {t:>4.2f} sec.')
+      # index.add(dummy_db); print(f'{len(dummy_db)} items from dummy DB')
+      index.add(db); print(f'{len(db)} items from reference DB')
+      faiss.write_index(index, 'index.faiss')
+      t = time.time() - start_time
+      print(f'Added total {index.ntotal} items to DB. {t:>4.2f} sec.')
+    else:
+      start_time = time.time()
+      index = faiss.read_index("./eval/index.faiss")
+      t = time.time() - start_time
+      print(f' Elapsed time {t:>4.2f} sec')
 
     """ ----------------------------------------------------------------------
     We need to prepare a merged {dummy_db + db} memmap:
